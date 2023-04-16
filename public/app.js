@@ -1,16 +1,19 @@
 const input = document.getElementById("input");
+const usernameInput = document.getElementById("username");
+const requestButton = document.getElementById("request");
+const disconnectButton = document.getElementById("disconnect");
 const messages = document.getElementById("messages");
 let clientId;
 let partnerId;
 let chatChannel;
-const peerConnection = new RTCPeerConnection({
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-});
+let clients = [];
+let peerConnection = getNewPeerConnection();
 const ws = new WebSocket("ws://localhost:3000");
 input.addEventListener("keydown", handleInputKeydown);
+usernameInput.addEventListener("keydown", handleUsernameKeydown);
+requestButton.addEventListener("click", handleRequestClick);
+disconnectButton.addEventListener("click", handleDisconnectClick);
 
-peerConnection.onicecandidate = handleIceCandidate;
-peerConnection.ondatachannel = handleDataChannel;
 ws.onmessage = handleWebSocketMessage;
 
 function handleInputKeydown(event) {
@@ -19,17 +22,38 @@ function handleInputKeydown(event) {
   }
   const message = event.target.value;
   sendMessage(message);
-  displayMessage({ name: `${clientId} (YOU)`, text: message });
+  displayMessage({ clientId: clientId, text: message });
   input.value = "";
 }
 
+function handleUsernameKeydown(event) {
+  if (event.key !== "Enter" || !usernameInput.value) {
+    return;
+  }
+  const message = event.target.value;
+  updateUsername(message);
+  usernameInput.value = "";
+}
+
+function handleRequestClick() {
+  sendChatRequest();
+}
+
+function handleDisconnectClick() {
+  disconnectButton.disabled = true;
+  disconnectFromPeer();
+}
+
 function sendMessage(text) {
-  chatChannel.send(JSON.stringify({ name: clientId, text }));
+  chatChannel.send(JSON.stringify({ clientId: clientId, text }));
 }
 
 function displayMessage(message) {
   const div = document.createElement("div");
-  div.textContent = `${message.name}: ${message.text}`;
+  const username = clients.find(
+    (client) => client.id === message.clientId
+  ).username;
+  div.textContent = `${username ?? message.clientId}: ${message.text}`;
   messages.appendChild(div);
 }
 
@@ -48,13 +72,23 @@ function createDataChannel() {
 function createAndSendOffer() {
   peerConnection.createOffer().then((offer) => {
     peerConnection.setLocalDescription(offer);
-    ws.send(JSON.stringify({ type: "offer", offer }));
+    ws.send(
+      JSON.stringify({
+        type: "offer",
+        value: { offer: offer, partnerId: partnerId },
+      })
+    );
   });
 }
 
 function handleIceCandidate(event) {
   if (event.candidate) {
-    ws.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
+    ws.send(
+      JSON.stringify({
+        type: "candidate",
+        value: { candidate: event.candidate, partnerId: partnerId },
+      })
+    );
   }
 }
 
@@ -70,38 +104,68 @@ function handleDataChannel(event) {
 function handleWebSocketMessage(event) {
   const message = JSON.parse(event.data);
   const handlers = {
-    id: () => (clientId = message.value),
-    partner: () => (partnerId = message.value),
-    initiate: initiateCall,
+    id: () => (clientId = message.value.clientId),
+    partner: () => (partnerId = message.value.partnerId),
+    initiate: () => handleReceivedInitiate(message),
     offer: () => handleReceivedOffer(message),
     candidate: () => handleReceivedCandidate(message),
     answer: () => handleReceivedAnswer(message),
+    available_clients: () => handleAvailableClients(message),
+    chat_request: () => handleChatRequest(message),
+    chat_request_rejected: () => handleChatRequestRejected(message),
   };
   handlers[message.type]?.();
 }
-
+function handleReceivedInitiate(message) {
+  partnerId = message.value.partnerId;
+  initiateCall();
+}
 function handleReceivedOffer(message) {
-  peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
+  peerConnection.setRemoteDescription(
+    new RTCSessionDescription(message.value.offer)
+  );
   peerConnection.createAnswer().then((answer) => {
     peerConnection.setLocalDescription(answer);
-    ws.send(JSON.stringify({ type: "answer", answer }));
+    ws.send(JSON.stringify({ type: "answer", value: { answer: answer } }));
   });
 }
 
 function handleReceivedCandidate(message) {
-  const candidate = new RTCIceCandidate(message.candidate);
+  const candidate = new RTCIceCandidate(message.value.candidate);
   peerConnection.addIceCandidate(candidate);
 }
 
 function handleReceivedAnswer(message) {
   peerConnection.setRemoteDescription(
-    new RTCSessionDescription(message.answer)
+    new RTCSessionDescription(message.value.answer)
+  );
+}
+
+function handleAvailableClients(message) {
+  const allAvailableClients = message.value.availableClients;
+  clients = allAvailableClients.filter((client) => client.id !== clientId);
+}
+
+function handleChatRequest(message) {
+  const requestorId = message.value.requestorId;
+  // check if user wants to chat with requestor
+  respondToChatRequest(requestorId, true);
+}
+
+function handleChatRequestRejected(message) {
+  const requestedChatPartnerId = message.value.requestedChatPartnerId;
+  // check if user wants to chat with requestor
+  alert(
+    `Your chat request to ${requestedChatPartnerId} was rejected. Please try again.`
   );
 }
 
 function handleDataChannelOpen() {
   input.disabled = false;
-  input.placeholder = "Type your message...";
+  input.placeholder = "Type a message";
+  disconnectButton.disabled = false;
+  disconnectButton.setAttribute("title", "Disconnect from chat partner");
+  requestButton.disabled = true;
 }
 
 function handleDataChannelMessage(event) {
@@ -112,4 +176,54 @@ function handleDataChannelMessage(event) {
 function handleDataChannelClose() {
   input.disabled = true;
   input.placeholder = "Chat is closed";
+  disconnectButton.disabled = true;
+  requestButton.disabled = false;
+  disconnectButton.setAttribute("title", "No chat partner connected");
+  peerConnection = getNewPeerConnection();
+}
+
+function updateUsername(newUsername) {
+  ws.send(
+    JSON.stringify({
+      type: "change_username",
+      value: { username: newUsername },
+    })
+  );
+}
+
+function respondToChatRequest(requestorId, accept) {
+  ws.send(
+    JSON.stringify({
+      type: "chat_request_response",
+      value: { requestorId, accept },
+    })
+  );
+}
+
+function sendChatRequest(requestedChatPartner = clients[0]) {
+  ws.send(
+    JSON.stringify({
+      type: "connection_to_client_request",
+      value: { requestedChatPartnerId: requestedChatPartner.id },
+    })
+  );
+}
+
+function getNewPeerConnection() {
+  const peerConnection = new RTCPeerConnection({
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  });
+  peerConnection.onicecandidate = handleIceCandidate;
+  peerConnection.ondatachannel = handleDataChannel;
+  return peerConnection;
+}
+
+function disconnectFromPeer() {
+  if (chatChannel) {
+    chatChannel.close();
+  }
+  if (peerConnection) {
+    peerConnection.close();
+  }
+  peerConnection = getNewPeerConnection();
 }
