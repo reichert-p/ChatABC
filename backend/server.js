@@ -7,13 +7,12 @@ const wss = new WebSocket.Server({ server });
 
 let clients = [];
 
-function updateAvailableClients() {
-  const availableClients = clients
-    .filter((client) => !client.connected)
-    .map((client) => ({ id: client.id, username: client.username }));
+function updateClients() {
+  const allClients = clients
+    .map((client) => ({ id: client.id, username: client.username, available: !client.connected }));
   const message = JSON.stringify({
     type: "available_clients",
-    value: { availableClients: availableClients },
+    value: { availableClients: allClients },
   });
   clients.forEach((client) => client.ws.send(message));
 }
@@ -21,10 +20,10 @@ function updateAvailableClients() {
 wss.on("connection", (ws) => {
   const clientId = uuidv4();
   ws.id = clientId;
-  clients.push({ id: clientId, ws: ws, connected: false, username: "" });
+  clients.push({ id: clientId, ws: ws, connected: false, username: "anonymous" });
 
   ws.send(JSON.stringify({ type: "id", value: { clientId: clientId } }));
-  updateAvailableClients();
+  updateClients();
 
   ws.on("message", (data) => {
     const message = JSON.parse(data);
@@ -36,7 +35,7 @@ wss.on("connection", (ws) => {
       const client = clients.find((client) => client.id === clientId);
       if (client) {
         client.username = message.value.username;
-        updateAvailableClients();
+        updateClients();
       }
     } else if (message.type === "initiate") {
       const client = clients.find((client) => client.id === clientId);
@@ -44,7 +43,7 @@ wss.on("connection", (ws) => {
       if (client && partner) {
         client.connected = true;
         partner.connected = true;
-        updateAvailableClients();
+        updateClients();
         partner.ws.send(
           JSON.stringify({ type: "partner", value: { partnerId: clientId } })
         );
@@ -59,9 +58,6 @@ wss.on("connection", (ws) => {
         (client) => client.id === requestedClientId
       );
       if (client && requestedClient) {
-        // client.connected = true;
-        // partner.connected = true;
-        // updateAvailableClients();
         requestedClient.ws.send(
           JSON.stringify({
             type: "chat_request",
@@ -79,7 +75,7 @@ wss.on("connection", (ws) => {
         client.partnerId = partner.id;
         partner.partnerId = client.id;
         partner.connected = true;
-        updateAvailableClients();
+        updateClients();
         ws.send(
           JSON.stringify({ type: "partner", value: { partnerId: partner.id } })
         );
@@ -94,7 +90,20 @@ wss.on("connection", (ws) => {
           })
         );
       }
-    } else if (target) {
+    } else if (message.type === "disconnect_from_partner") {
+      const client = clients.find((client) => client.id === clientId);
+      const partner = clients.find((client) => client.partnerId === clientId);
+      if (client) {
+        client.connected = false;
+        client.partnerId = null;
+      }
+      if (partner) {
+        partner.connected = false;
+        partner.partnerId = null;
+      }
+      updateClients();
+    }
+    else if (target) {
       target.ws.send(data.toString());
     }
   });
@@ -108,7 +117,7 @@ wss.on("connection", (ws) => {
       partner.partnerId = null;
     }
     clients = clients.filter((client) => client.id !== clientId);
-    updateAvailableClients();
+    updateClients();
   });
 });
 

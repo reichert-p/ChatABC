@@ -53,7 +53,13 @@ function displayMessage(message) {
   const username = clients.find(
     (client) => client.id === message.clientId
   ).username;
-  div.textContent = `${username ?? message.clientId}: ${message.text}`;
+  let senderInfo = "";
+  if (message.clientId === clientId) {
+    senderInfo = "You";
+  } else {
+    senderInfo = `${username ?? ""} (${message.clientId})`;
+  }
+  div.textContent = `${senderInfo}: ${message.text}`;
   messages.appendChild(div);
 }
 
@@ -143,7 +149,7 @@ function handleReceivedAnswer(message) {
 
 function handleAvailableClients(message) {
   const allAvailableClients = message.value.availableClients;
-  clients = allAvailableClients.filter((client) => client.id !== clientId);
+  clients = allAvailableClients;
 }
 
 function handleChatRequest(message) {
@@ -200,7 +206,7 @@ function respondToChatRequest(requestorId, accept) {
   );
 }
 
-function sendChatRequest(requestedChatPartner = clients[0]) {
+function sendChatRequest(requestedChatPartner = clients.filter(client => client.available && client.id !== clientId)[0]) {
   ws.send(
     JSON.stringify({
       type: "connection_to_client_request",
@@ -225,5 +231,12 @@ function disconnectFromPeer() {
   if (peerConnection) {
     peerConnection.close();
   }
+  ws.send(
+    JSON.stringify({
+      type: "disconnect_from_partner",
+      value: { partnerId: partnerId },
+    })
+  );
   peerConnection = getNewPeerConnection();
+
 }
