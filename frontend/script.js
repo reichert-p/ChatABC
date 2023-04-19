@@ -25,6 +25,7 @@ preload ()
 
   this.load.spritesheet('ShiftKey', 'Keys/Shift-Key.png', { frameWidth: 48, frameHeight: 32 })
   this.load.spritesheet('SpaceKey', 'Keys/Space-Key.png', { frameWidth: 64, frameHeight: 32 })
+  this.load.spritesheet('CoolKey', 'Keys/Cool-Key.png',  { frameWidth: 32, frameHeight: 32 })
 }
 
 create ()
@@ -54,8 +55,9 @@ create ()
 
 createKeyboardLayout(){
   for (let i = 0; i < 9; i++) {
-    this.createSimpleKey(this.keys[i],50 + 79 * i,50)
+    this.createSimpleKey(this.keys[i],50 + 71 * i,50)
   }
+  this.createSimpleKey(this.keys[36], 50 + 71 * 9, 50)
   this.createSimpleKey(this.keys[35], 50 + 71 * 10, 50)
 
   this.createSimpleKey(this.keys[25], 50,180)
@@ -68,7 +70,7 @@ createKeyboardLayout(){
   this.createSimpleKey(this.keys[17], 50 + 71 * 7, 180)
   this.createSimpleKey(this.keys[23], 50 + 71 * 8, 180)
   this.createSimpleKey(this.keys[24], 50 + 71 * 9, 180)
-  this.createSimpleKey(this.keys[35], 50 + 71 * 10, 180) // ü
+  this.createSimpleKey(this.keys[37], 50 + 71 * 10, 180) // ü
   
 
   this.createSimpleKey(this.keys[9], 50,310)
@@ -80,8 +82,8 @@ createKeyboardLayout(){
   this.createSimpleKey(this.keys[18], 50 + 71 * 6, 310)
   this.createSimpleKey(this.keys[19], 50 + 71 * 7, 310)
   this.createSimpleKey(this.keys[20], 50 + 71 * 8, 310)
-  this.createSimpleKey(this.keys[35], 50 + 71 * 9, 310)  // ö
-  this.createSimpleKey(this.keys[35], 50 + 71 * 10, 310)  //ä
+  this.createSimpleKey(this.keys[39], 50 + 71 * 9, 310)  // ö
+  this.createSimpleKey(this.keys[38], 50 + 71 * 10, 310)  //ä
 
 
   this.createSimpleKey(this.keys[33], 170,440)
@@ -93,8 +95,9 @@ createKeyboardLayout(){
   this.createSimpleKey(this.keys[21], 170 + 71 * 6, 440)
 
 
-  this.createKey('Space', 250 , 510, 120, 50 )  
-  this.createKey('Shift', 50 , 510, 80, 50 )  
+  this.createKey('Space', 250 , 510, 120, 50 )
+  this.createKey('Shift', 50 , 510, 80, 50 )
+  this.createSimpleKey('Cool', 400, 510, 50, 50)
 }
 
 createKey(key, xpos, ypos, xsize, ysize){
@@ -145,7 +148,7 @@ update() {
   setupKeys(){
     this.keys.push('1','2','3', '4','5','6','7','8','9')
     this.keys.push('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
-    this.keys.push('Esc')
+    this.keys.push('Esc', '0', 'Ü', 'Ä', 'Ö')
   }
 }
 
