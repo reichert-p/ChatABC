@@ -5,6 +5,9 @@ class Game extends Phaser.Scene
   player;
   emitter;
 
+  spacebar;
+  lastPressed;
+
   keys = [];  
 
 preload ()
@@ -48,6 +51,7 @@ create ()
   this.player.setCollideWorldBounds(true);
  
   this.cursors = this.input.keyboard.createCursorKeys();
+  this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   this.emitter.startFollow(this.player);
 
   this.createKeyboardLayout()
@@ -123,27 +127,26 @@ createSimpleKey(key, xpos, ypos) {
 hitKey (player, key)
 {
   key.anims.play(key.texture);
-  console.log(key.texture.key)
+  var keyID = key.texture.key;
+  this.lastPressed = keyID.slice(0, -3)
 }
 
 update() {
-  if (this.cursors.left.isDown)
-  {
+  if (this.cursors.left.isDown){
       this.player.setVelocityX(-160);
-  }
-  else if (this.cursors.right.isDown)
-  {
+  } else if (this.cursors.right.isDown){
       this.player.setVelocityX(160)
-  }
-  else
-  {
+  } else{
       this.player.setVelocityX(0);
   }
-  if (this.cursors.up.isDown)
-  {
+  if (this.cursors.up.isDown) {
       this.player.setVelocityY(-330);
   }
+  if(Phaser.Input.Keyboard.JustDown(this.spacebar)){
+    console.log(this.lastPressed);
   }
+ 
+}
 
   setupKeys(){
     this.keys.push('1','2','3', '4','5','6','7','8','9')
