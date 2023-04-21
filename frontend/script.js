@@ -8,6 +8,9 @@ class Game extends Phaser.Scene
   spacebar;
   lastPressed;
 
+  stored = '';
+  shift = false;
+
   keys = [];  
 
 preload ()
@@ -17,7 +20,6 @@ preload ()
   this.load.setBaseURL('assets');
 
   this.load.image('dude', 'character.png');
-  //this.load.image('keyboard', 'keyboard.png');
   this.load.image('particle', 'fire.png');
 
   this.keys.forEach((key) => {
@@ -29,12 +31,11 @@ preload ()
   this.load.spritesheet('ShiftKey', 'Keys/Shift-Key.png', { frameWidth: 48, frameHeight: 32 })
   this.load.spritesheet('SpaceKey', 'Keys/Space-Key.png', { frameWidth: 64, frameHeight: 32 })
   this.load.spritesheet('CoolKey', 'Keys/Cool-Key.png',  { frameWidth: 32, frameHeight: 32 })
+  this.load.spritesheet('SendKey', 'Keys/Enter-Key.png',  { frameWidth: 32, frameHeight: 32 })
 }
 
 create ()
 {
-  //this.add.image(400, 300, 'keyboard')
-
   var particles = this.add.particles('particle');
 
   this.emitter = particles.createEmitter({
@@ -102,6 +103,7 @@ createKeyboardLayout(){
   this.createKey('Space', 250 , 510, 120, 50 )
   this.createKey('Shift', 50 , 510, 80, 50 )
   this.createSimpleKey('Cool', 400, 510, 50, 50)
+  this.createSimpleKey('Send', 650, 510 )
 }
 
 createKey(key, xpos, ypos, xsize, ysize){
@@ -143,18 +145,48 @@ update() {
       this.player.setVelocityY(-330);
   }
   if(Phaser.Input.Keyboard.JustDown(this.spacebar)){
-    console.log(this.lastPressed);
+    this.process(this.lastPressed)
   }
  
 }
 
-  setupKeys(){
-    this.keys.push('1','2','3', '4','5','6','7','8','9')
-    this.keys.push('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
-    this.keys.push('Esc', '0', 'Ü', 'Ä', 'Ö')
-  }
+setupKeys(){
+  this.keys.push('1','2','3', '4','5','6','7','8','9')
+  this.keys.push('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
+  this.keys.push('Esc', '0', 'Ü', 'Ä', 'Ö')
 }
 
+process(input){
+  console.log(input)
+  if(input.length == 1){
+    if (this.shift){
+      this.stored+= input.toUpperCase();
+      this.shift = false
+    } else{
+      this.stored+= input.toLowerCase();
+    }
+    
+  }
+  if(input == 'Space'){
+    this.stored += ' ';
+  }
+  if(input == 'Shift'){
+    this.shift = !this.shift;
+  }
+  if(input == 'Send'){
+    this.stored = '';
+    //TODO send the message
+  }
+  if(input == 'Esc'){
+    this.shift = this.stored += ' Eurovision Song Contest ';
+  }
+  if(input == 'Cool'){
+    this.shift = this.stored += ' Du geile Sau ';
+  }
+ 
+  this.add.text(0, 0, this.stored, { font: '"Press Start 2P"' });
+}
+}
 
 
 const config = {
