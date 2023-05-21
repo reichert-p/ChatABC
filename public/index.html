@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Simple P2P Web Chat</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div>
+      <button id="request">Request to Connect</button>
+      <button id="disconnect" disabled>Disconnect</button>
+    </div>
+    <div id="chat">
+      <input id="username" type="text" placeholder="Type your username..." />
+      <input
+        id="input"
+        type="text"
+        disabled
+        placeholder="Not connected to anyone yet..."
+      />
+      <div id="messages"></div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
