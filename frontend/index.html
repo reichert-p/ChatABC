@@ -5,8 +5,25 @@
     <title>Phaser Keyboard Input</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <script src="script.js"></script>
+   
   </head>
   <body>
+    <div>
+      <button id="request">Request to Connect</button>
+      <button id="disconnect" disabled>Disconnect</button>
+    </div>
+    <div id="chat">
+      <input id="username" type="text" placeholder="Type your username..." />
+      <input
+        id="input"
+        type="text"
+        disabled
+        placeholder="Not connected to anyone yet..."
+      />
+      <div id="messages"></div>
+    </div>
     <canvas id="gameCanvas"></canvas>
+    <script src="app.js"></script>
   </body>
+  
 </html>

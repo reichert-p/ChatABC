@@ -174,8 +174,9 @@ process(input){
     this.shift = !this.shift;
   }
   if(input == 'Send'){
+    sendMessage(this.stored)
+    displayMessage({ clientId: clientId, text: this.stored });
     this.stored = '';
-    //TODO send the message
   }
   if(input == 'Esc'){
     this.shift = this.stored += ' Eurovision Song Contest ';
@@ -183,8 +184,8 @@ process(input){
   if(input == 'Cool'){
     this.shift = this.stored += ' Du geile Sau ';
   }
- 
-  this.add.text(0, 0, this.stored, { font: '"Press Start 2P"' });
+  inputField.value = this.stored;
+  //this.add.text(0, 0, this.stored, { font: '"Press Start 2P"' });
 }
 }
 

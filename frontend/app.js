@@ -1,4 +1,4 @@
-const input = document.getElementById("input");
+const inputField = document.getElementById("input");
 const usernameInput = document.getElementById("username");
 const requestButton = document.getElementById("request");
 const disconnectButton = document.getElementById("disconnect");
@@ -9,7 +9,7 @@ let chatChannel;
 let clients = [];
 let peerConnection = getNewPeerConnection();
 const ws = new WebSocket("ws://localhost:3000");
-input.addEventListener("keydown", handleInputKeydown);
+inputField.addEventListener("keydown", handleInputKeydown);
 usernameInput.addEventListener("keydown", handleUsernameKeydown);
 requestButton.addEventListener("click", handleRequestClick);
 disconnectButton.addEventListener("click", handleDisconnectClick);
@@ -17,13 +17,13 @@ disconnectButton.addEventListener("click", handleDisconnectClick);
 ws.onmessage = handleWebSocketMessage;
 
 function handleInputKeydown(event) {
-  if (event.key !== "Enter" || !input.value || !chatChannel) {
+  if (event.key !== "Enter" || !inputField.value || !chatChannel) {
     return;
   }
   const message = event.target.value;
   sendMessage(message);
   displayMessage({ clientId: clientId, text: message });
-  input.value = "";
+  inputField.value = "";
 }
 
 function handleUsernameKeydown(event) {
@@ -167,8 +167,8 @@ function handleChatRequestRejected(message) {
 }
 
 function handleDataChannelOpen() {
-  input.disabled = false;
-  input.placeholder = "Type a message";
+  //inputField.disabled = false;
+  inputField.placeholder = "Type a message";
   disconnectButton.disabled = false;
   disconnectButton.setAttribute("title", "Disconnect from chat partner");
   requestButton.disabled = true;
@@ -180,8 +180,8 @@ function handleDataChannelMessage(event) {
 }
 
 function handleDataChannelClose() {
-  input.disabled = true;
-  input.placeholder = "Chat is closed";
+  inputField.disabled = true;
+  inputField.placeholder = "Chat is closed";
   disconnectButton.disabled = true;
   requestButton.disabled = false;
   disconnectButton.setAttribute("title", "No chat partner connected");
