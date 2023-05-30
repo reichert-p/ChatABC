@@ -5,6 +5,7 @@ ChatABC ist ein P2P Chat Programm, das über WebIRC kommuniziert.
 Bei ChatABC steht nicht die effizienz, sondern das Erlebnis und die Entschleunigung bei der Nachrichtenerstellung im Vordergrund.  
 Disclaimer: Dieses Dokument wurde nicht mit ChatABC erstellt.
 
+---
 ## Deployment
 ChatABC kann auf zwei Arten deployed werden.
 Entweder über Docker oder manuell.
