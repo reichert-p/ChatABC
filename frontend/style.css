@@ -1,0 +1,32 @@
+body {
+    display: flex;
+  }
+  
+  #chat {
+    width: 300px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    margin-right: 10px;
+  }
+
+  
+  #messages {
+    margin-top: 10px;
+    height: 500px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 5px;
+  }
+  
+  #username,
+  #input {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  #request,
+  #disconnect {
+    margin-bottom: 5px;
+  }
+  

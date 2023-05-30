@@ -3,16 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <title>Phaser Keyboard Input</title>
+    <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <script src="script.js"></script>
-   
   </head>
   <body>
-    <div>
+    <div id="chat">
       <button id="request">Request to Connect</button>
       <button id="disconnect" disabled>Disconnect</button>
-    </div>
-    <div id="chat">
       <input id="username" type="text" placeholder="Type your username..." />
       <input
         id="input"
@@ -22,8 +20,6 @@
       />
       <div id="messages"></div>
     </div>
-    <canvas id="gameCanvas"></canvas>
     <script src="app.js"></script>
   </body>
-  
 </html>

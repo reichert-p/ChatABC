@@ -57,7 +57,8 @@ function displayMessage(message) {
   if (message.clientId === clientId) {
     senderInfo = "You";
   } else {
-    senderInfo = `${username ?? ""} (${message.clientId})`;
+    senderInfo = username;
+    // senderInfo = `${username ?? ""} (${message.clientId})`;
   }
   div.textContent = `${senderInfo}: ${message.text}`;
   messages.appendChild(div);
@@ -206,7 +207,11 @@ function respondToChatRequest(requestorId, accept) {
   );
 }
 
-function sendChatRequest(requestedChatPartner = clients.filter(client => client.available && client.id !== clientId)[0]) {
+function sendChatRequest(
+  requestedChatPartner = clients.filter(
+    (client) => client.available && client.id !== clientId
+  )[0]
+) {
   ws.send(
     JSON.stringify({
       type: "connection_to_client_request",
@@ -238,5 +243,4 @@ function disconnectFromPeer() {
     })
   );
   peerConnection = getNewPeerConnection();
-
 }
