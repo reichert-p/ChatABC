@@ -1,0 +1,23 @@
+version: '3'
+services:
+  static-file-server:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    networks:
+      - chat-app-network
+
+  node-server-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    networks:
+      - chat-app-network
+
+networks:
+  chat-app-network:
+    driver: bridge
