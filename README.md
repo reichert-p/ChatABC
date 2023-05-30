@@ -19,8 +19,8 @@ Entweder über Docker oder manuell.
    1. `cd backend`
    2. `npm install`
 2. Website hosten (z.B. mit Nginx)  
-    2.1. Static Files aus dem Ordner `frontend` hosten  
-    2.2. Kommunikation mit dem Backend über Websocket auf Port 3000 erlauben
+    1. Static Files aus dem Ordner `frontend` hosten  
+    2. Kommunikation mit dem Backend über Websocket auf Port 3000 erlauben
 3. Backend starten
    1. `cd backend`
    2. `npm start`
